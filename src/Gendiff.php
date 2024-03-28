@@ -2,12 +2,14 @@
 
 namespace Hexlet\Code\Gendiff;
 
+use function Hexlet\Code\Parsers\parse;
+
 function generate(string $firstFile, string $secondFile): string
 {
     $resultArray = [];
 
-    $firstArray = jsonToArray($firstFile);
-    $secondArray = jsonToArray($secondFile);
+    $firstArray = parse($firstFile);
+    $secondArray = parse($secondFile);
 
     findingDifference($resultArray, $firstArray, $secondArray);
 
@@ -69,13 +71,6 @@ function buildResult(array $resultArray): string
     }
 
     return sprintf("{\n%s}\n", $result);
-}
-
-function jsonToArray(string $path): array
-{
-    $json = file_get_contents($path);
-
-    return json_decode($json, true);
 }
 
 function convertToString(mixed $value): string

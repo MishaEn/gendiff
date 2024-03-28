@@ -1,1 +1,1 @@
-{"version":1,"defects":[],"times":{"Hexlet\\Code\\Tests\\GendiffTest\\GendiffTest::testGenerate":2.179}}
+{"version":1,"defects":{"Hexlet\\Code\\Tests\\GendiffTest\\GendiffTest::testGenerate":8},"times":{"Hexlet\\Code\\Tests\\GendiffTest\\GendiffTest::testGenerate":2.743,"Hexlet\\Code\\Tests\\GendiffTest\\GendiffTest::testParse":0.006}}

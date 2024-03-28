@@ -4,6 +4,7 @@ namespace Hexlet\Code\Tests\GendiffTest;
 
 use PHPUnit\Framework\TestCase;
 use function Hexlet\Code\Gendiff\generate;
+use function Hexlet\Code\Parsers\parse;
 
 class GendiffTest extends TestCase
 {
@@ -19,5 +20,20 @@ class GendiffTest extends TestCase
         $expected .= "}\n";
 
         $this->assertEquals($expected, generate('file1.json', 'file2.json'));
+        $this->assertEquals($expected, generate('file1.yml', 'file3.yml'));
+        $this->assertEquals($expected, generate('file1.yml', 'file2.yaml'));
+    }
+
+    public function testParse(): void
+    {
+        $expected = [
+            'host' => 'hexlet.io',
+            'timeout' => 50,
+            'proxy' => '123.234.53.22',
+            'follow' => false
+        ];
+
+        $this->assertEquals($expected, parse('file1.json'));
+        $this->assertEquals($expected, parse('file1.yml',));
     }
 }
