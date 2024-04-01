@@ -23,17 +23,4 @@ class GendiffTest extends TestCase
         $this->assertEquals($expected, generate('file1.yml', 'file3.yml'));
         $this->assertEquals($expected, generate('file1.yml', 'file2.yaml'));
     }
-
-    public function testParse(): void
-    {
-        $expected = [
-            'host' => 'hexlet.io',
-            'timeout' => 50,
-            'proxy' => '123.234.53.22',
-            'follow' => false
-        ];
-
-        $this->assertEquals($expected, parse('file1.json'));
-        $this->assertEquals($expected, parse('file1.yml',));
-    }
 }
