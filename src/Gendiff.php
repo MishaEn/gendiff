@@ -31,24 +31,21 @@ function findingDifference(array $firstArray, array $secondArray): array
     ksort($merged);
 
     foreach ($merged as $key => $value) {
-        if (isset($intersecting[$key]) && !is_array($value)) {
-            if ($firstArray[$key] !== $secondArray[$key]) {
+        if (isset($intersecting[$key])) {
+            if ($firstArray[$key] !== $secondArray[$key] && !is_array($value)) {
                 $resultArray[] = commitUpdate(convertToString($firstArray[$key]),  convertToString($secondArray[$key]), null, $key);
+
+                continue;
             }
-            if ($firstArray[$key] === $secondArray[$key]) {
-                $resultArray[] = commitNothing(convertToString($secondArray[$key]), $key);
-            }
-        }
-        if (!isset($intersecting[$key]) && !is_array($value)) {
-            $resultArray[] = commitWithoutCrossing($firstArray, $secondArray, $key);
-        }
-        if (isset($intersecting[$key]) && is_array($value)) {
-            $resultArray[] = commitUpdate(null, null, findingDifference($firstArray[$key], $secondArray[$key]), $key);
+
+            $resultArray[] = !is_array($value) ?
+                commitNothing(convertToString($secondArray[$key]), $key) :
+                commitUpdate(null, null, findingDifference($firstArray[$key], $secondArray[$key]), $key);
+
+            continue;
         }
 
-        if (!isset($intersecting[$key]) && is_array($value)) {
-            $resultArray[] = commitWithoutCrossing($firstArray, $secondArray, $key);
-        }
+        $resultArray[] = commitWithoutCrossing($firstArray, $secondArray, $key);
     }
 
     return $resultArray;
@@ -133,71 +130,74 @@ function walkArrayStylish(array $resultArray, array &$result, int $spaceCount): 
 function formatStylish(array $resultArray, array &$result, int $spaceCount = 4): array
 {
     foreach ($resultArray as $item) {
-        if ($item['action'] === 'added') {
-            if (is_array($item['value'])) {
-                $result[] = sprintf("%*s+ %s: {", $spaceCount - 2, ' ', $item['key']);
-                walkArrayStylish($item['value'], $result, $spaceCount + 4);
-                $result[] = sprintf("%*s}", $spaceCount, ' ');
-            }
+        switch ($item['action']) {
+            case 'added':
+                if (is_array($item['value'])) {
+                    $result[] = sprintf("%*s+ %s: {", $spaceCount - 2, ' ', $item['key']);
+                    walkArrayStylish($item['value'], $result, $spaceCount + 4);
+                    $result[] = sprintf("%*s}", $spaceCount, ' ');
 
-            if (!is_array($item['value'])) {
-                $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
-            }
-        }
-
-        if ($item['action'] === 'removed') {
-            if (is_array($item['value'])) {
-                $result[] = sprintf("%*s- %s: {", $spaceCount - 2, ' ', $item['key']);
-                walkArrayStylish($item['value'], $result, $spaceCount + 4);
-                $result[] = sprintf("%*s}", $spaceCount, ' ');
-            }
-
-            if (!is_array($item['value'])) {
-                $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
-            }
-        }
-
-        if ($item['action'] === 'nothing') {
-            if (is_array($item['value'])) {
-                $result[] = sprintf("%*s %s: {", $spaceCount - 2, ' ', $item['key']);
-                walkArrayStylish($item['value'], $result, $spaceCount + 4);
-                $result[] = sprintf("%*s}", $spaceCount, ' ');
-            }
-
-            if (!is_array($item['value'])) {
-                $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $item['key'], $item['value']);
-            }
-        }
-
-        if ($item['action'] === 'update') {
-            if ($item['value'] === null) {
-                if (!is_array($item['value'])) {
-                    if (!is_array($item['from'])) {
-                        $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['from']);
-                    }
-                    if (is_array($item['from'])) {
-                        $result[] = sprintf("%*s- %s: {", $spaceCount - 2, ' ', $item['key']);
-                        walkArrayStylish($item['from'], $result, $spaceCount + 4);
-                        $result[] = sprintf("%*s}", $spaceCount, ' ');
-                    }
-                    if (!is_array($item['to'])) {
-                        $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['to']);
-                    }
-                    if (is_array($item['to'])) {
-                        $result[] = sprintf("%*s+ %s: {", $spaceCount - 2, ' ', $item['key']);
-                        walkArrayStylish($item['to'], $result, $spaceCount + 4);
-                        $result[] = sprintf("%*s}", $spaceCount, ' ');
-                    }
-
-
+                    break;
                 }
-            }
 
-            if ($item['value'] !== null) {
-                $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $item['key']);
-                formatStylish($item['value'],  $result, $spaceCount + 4);
-                $result[] = sprintf("%*s}", $spaceCount, ' ');
-            }
+                $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
+
+                break;
+            case 'removed':
+                if (is_array($item['value'])) {
+                    $result[] = sprintf("%*s- %s: {", $spaceCount - 2, ' ', $item['key']);
+                    walkArrayStylish($item['value'], $result, $spaceCount + 4);
+                    $result[] = sprintf("%*s}", $spaceCount, ' ');
+
+                    break;
+                }
+
+                $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
+
+                break;
+            case 'nothing':
+                if (is_array($item['value'])) {
+                    $result[] = sprintf("%*s %s: {", $spaceCount - 2, ' ', $item['key']);
+                    walkArrayStylish($item['value'], $result, $spaceCount + 4);
+                    $result[] = sprintf("%*s}", $spaceCount, ' ');
+
+                    break;
+                }
+
+                $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $item['key'], $item['value']);
+
+                break;
+            case 'update':
+                if ($item['value'] === null) {
+                    if (!is_array($item['value'])) {
+                        if (!is_array($item['from'])) {
+                            $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['from']);
+                        }
+                        if (is_array($item['from'])) {
+                            $result[] = sprintf("%*s- %s: {", $spaceCount - 2, ' ', $item['key']);
+                            walkArrayStylish($item['from'], $result, $spaceCount + 4);
+                            $result[] = sprintf("%*s}", $spaceCount, ' ');
+                        }
+                        if (!is_array($item['to'])) {
+                            $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['to']);
+                        }
+                        if (is_array($item['to'])) {
+                            $result[] = sprintf("%*s+ %s: {", $spaceCount - 2, ' ', $item['key']);
+                            walkArrayStylish($item['to'], $result, $spaceCount + 4);
+                            $result[] = sprintf("%*s}", $spaceCount, ' ');
+                        }
+
+
+                    }
+                }
+
+                if ($item['value'] !== null) {
+                    $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $item['key']);
+                    formatStylish($item['value'],  $result, $spaceCount + 4);
+                    $result[] = sprintf("%*s}", $spaceCount, ' ');
+                }
+
+                break;
         }
     }
 
@@ -209,41 +209,30 @@ function formatPlain(array $resultArray, array &$result, string $root = ''): arr
     foreach ($resultArray as $item) {
         $prefix = empty($root) ? $item['key'] : $root . '.' . $item['key'];
 
-        if ($item['action'] === 'added') {
-            if (is_array($item['value'])) {
-                $result[] = sprintf("Property '%s' was %s with value: %s", $prefix, $item['action'], '[complex value]');
-            }
+        switch ($item['action']) {
+            case 'added':
+                $value = !is_array($item['value']) ? $item['value'] : '[complex value]';
+                $result[] = sprintf("Property '%s' was %s with value: %s", $prefix, $item['action'], $value);
 
-            if (!is_array($item['value'])) {
-                $result[] = sprintf("Property '%s' was %s with value: %s", $prefix, $item['action'], $item['value']);
-            }
-        }
+                break;
+            case 'removed':
+                $result[] = sprintf("Property '%s' was %s", $prefix, $item['action']);
 
-        if ($item['action'] === 'removed') {
-            $result[] = sprintf("Property '%s' was %s", $prefix, $item['action']);
-        }
+                break;
+            case 'update':
+                if ($item['value'] === null) {
+                    $to = !is_array($item['to']) ? $item['to'] : '[complex value]';
+                    $from = !is_array($item['from']) ? $item['from'] : '[complex value]';
 
-        if ($item['action'] === 'update') {
-            if ($item['value'] === null) {
-                if (!is_array($item['value'])) {
-                    if (!is_array($item['from']) && !is_array($item['to'])) {
-                        $result[] = sprintf("Property '%s' was %s. From %s to %s", $prefix, $item['action'], $item['from'], $item['to']);
-                    }
-                    if (!is_array($item['from']) && is_array($item['to'])) {
-                        $result[] = sprintf("Property '%s' was %s. From %s to %s", $prefix, $item['action'], $item['from'], '[complex value]');
-                    }
-                    if (is_array($item['from']) && !is_array($item['to'])) {
-                        $result[] = sprintf("Property '%s' was %s. From %s to %s", $prefix, $item['action'], '[complex value]', $item['to']);
-                    }
-                    if (is_array($item['from']) && is_array($item['to'])) {
-                        $result[] = sprintf("Property '%s' was %s. From %s to %s", $prefix, $item['action'], '[complex value]', '[complex value]');
-                    }
+                    $result[] = sprintf("Property '%s' was %s. From %s to %s", $prefix, $item['action'], $to, $from);
+
+                    break;
                 }
-            }
 
-            if ($item['value'] !== null) {
+                $root = $item['key'];
                 formatPlain($item['value'], $result, $root);
-            }
+
+                break;
         }
     }
 
