@@ -3,6 +3,7 @@
 namespace Hexlet\Code\Gendiff;
 
 use mysql_xdevapi\Result;
+
 use function Hexlet\Code\Parsers\parse;
 use function Hexlet\Code\Formatters\format;
 
@@ -114,8 +115,10 @@ function buildResult(array $resultArray, string $format): string
 function walkArrayStylish(array $resultArray, array &$result, int $spaceCount): void
 {
     foreach ($resultArray as $key => $item) {
+        $value['key'] = $key;
+        $value['value'] = $item;
         if (is_array($item)) {
-            formatDeep($result, $key, $item, $spaceCount);
+            formatDeep($result, $value, $spaceCount);
             continue;
         }
 
@@ -123,10 +126,10 @@ function walkArrayStylish(array $resultArray, array &$result, int $spaceCount): 
     }
 }
 
-function formatDeep(array &$result, string $key, mixed $item, int $spaceCount, string $sign = ''): void
+function formatDeep(array &$result, array $item, int $spaceCount, string $sign = ''): void
 {
-    $result[] = sprintf("%*s%s%s: {", $spaceCount, ' ', $sign, $key);
-    walkArrayStylish($item, $result, $spaceCount + 4);
+    $result[] = sprintf("%*s%s%s: {", $spaceCount, ' ', $sign, $item['key']);
+    walkArrayStylish($item['value'], $result, $spaceCount + 4);
     $result[] = sprintf("%*s}", $spaceCount, ' ');
 }
 
@@ -135,13 +138,13 @@ function formatStylish(array $resultArray, array &$result, int $spaceCount = 4):
     foreach ($resultArray as $item) {
         switch ($item['action']) {
             case 'added':
-                formatStylishActionAdded($result, $item, $spaceCount);
+                formatStylishSimpleAction($result, $item, $spaceCount, '+ ');
                 break;
             case 'removed':
-                formatStylishActionRemoved($result, $item, $spaceCount);
+                formatStylishSimpleAction($result, $item, $spaceCount, '- ');
                 break;
             case 'nothing':
-                formatStylishActionNothing($result, $item, $spaceCount);
+                formatStylishSimpleAction($result, $item, $spaceCount);
                 break;
             case 'update':
                 formatStylishActionUpdate($result, $item, $spaceCount);
@@ -152,45 +155,28 @@ function formatStylish(array $resultArray, array &$result, int $spaceCount = 4):
     return $result;
 }
 
-function formatStylishActionAdded(array &$result, mixed $item, int $spaceCount): void
+function formatStylishSimpleAction(array &$result, mixed $item, int $spaceCount, string $sign = ''): void
 {
     if (is_array($item['value'])) {
-        formatDeep($result, $item['key'], $item['value'], $spaceCount, '+ ');
+        formatDeep($result, $item, $spaceCount, $sign);
 
         return;
     }
 
-    $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
+    $result[] = sprintf("%*s%s%s: %s", $spaceCount - 2, ' ', $sign, $item['key'], $item['value']);
 }
-function formatStylishActionRemoved(array &$result, mixed $item, int $spaceCount): void
-{
-    if (is_array($item['value'])) {
-        formatDeep($result, $item['key'], $item['value'], $spaceCount, '- ');
 
-        return;
-    }
-
-    $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
-}
-function formatStylishActionNothing(array &$result, mixed $item, int $spaceCount): void
-{
-    if (is_array($item['value'])) {
-        formatDeep($result, $item['key'], $item['value'], $spaceCount, '');
-
-        return;
-    }
-
-    $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $item['key'], $item['value']);
-}
 function formatStylishActionUpdate(array &$result, mixed $item, int $spaceCount): void
 {
     if ($item['value'] === null && !is_array($item['value'])) {
         if (is_array($item['from'])) {
-            formatDeep($result, $item['key'], $item['from'], $spaceCount, '- ');
+            $item['value'] = $item['from'];
+            formatDeep($result, $item, $spaceCount, '- ');
         }
 
         if (is_array($item['to'])) {
-            formatDeep($result, $item['key'], $item['to'], $spaceCount, '+ ');
+            $item['value'] = $item['to'];
+            formatDeep($result, $item, $spaceCount, '+ ');
         }
 
         if (!is_array($item['to']) && !is_array($item['from'])) {
@@ -202,7 +188,7 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $spaceCount)
     }
 
     $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $item['key']);
-    formatStylish($item['value'],  $result, $spaceCount + 4);
+    formatStylish($item['value'], $result, $spaceCount + 4);
     $result[] = sprintf("%*s}", $spaceCount, ' ');
 }
 
