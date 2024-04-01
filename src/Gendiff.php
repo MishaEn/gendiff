@@ -101,7 +101,6 @@ function buildResult(array $resultArray, string $format): string
             }
             return sprintf("{%s\n}", $resultString);
         case 'plain':
-            dump($resultArray);
             $result = formatPlain($resultArray, $result);
             foreach ($result as $item) {
                 $resultString .= "\n" . $item;
@@ -116,15 +115,19 @@ function walkArrayStylish(array $resultArray, array &$result, int $spaceCount): 
 {
     foreach ($resultArray as $key => $item) {
         if (is_array($item)) {
-            $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $key);
-            walkArrayStylish($item, $result, $spaceCount + 4);
-            $result[] = sprintf("%*s}", $spaceCount, ' ');
+            formatDeep($result, $key, $item, $spaceCount);
+            continue;
         }
 
-        if (!is_array($item)) {
-            $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $key, $item);
-        }
+        $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $key, $item);
     }
+}
+
+function formatDeep(array &$result, string $key, mixed $item, int $spaceCount, string $sign = ''): void
+{
+    $result[] = sprintf("%*s%s%s: {", $spaceCount, ' ', $sign, $key);
+    walkArrayStylish($item, $result, $spaceCount + 4);
+    $result[] = sprintf("%*s}", $spaceCount, ' ');
 }
 
 function formatStylish(array $resultArray, array &$result, int $spaceCount = 4): array
@@ -132,76 +135,75 @@ function formatStylish(array $resultArray, array &$result, int $spaceCount = 4):
     foreach ($resultArray as $item) {
         switch ($item['action']) {
             case 'added':
-                if (is_array($item['value'])) {
-                    $result[] = sprintf("%*s+ %s: {", $spaceCount - 2, ' ', $item['key']);
-                    walkArrayStylish($item['value'], $result, $spaceCount + 4);
-                    $result[] = sprintf("%*s}", $spaceCount, ' ');
-
-                    break;
-                }
-
-                $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
-
+                formatStylishActionAdded($result, $item, $spaceCount);
                 break;
             case 'removed':
-                if (is_array($item['value'])) {
-                    $result[] = sprintf("%*s- %s: {", $spaceCount - 2, ' ', $item['key']);
-                    walkArrayStylish($item['value'], $result, $spaceCount + 4);
-                    $result[] = sprintf("%*s}", $spaceCount, ' ');
-
-                    break;
-                }
-
-                $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
-
+                formatStylishActionRemoved($result, $item, $spaceCount);
                 break;
             case 'nothing':
-                if (is_array($item['value'])) {
-                    $result[] = sprintf("%*s %s: {", $spaceCount - 2, ' ', $item['key']);
-                    walkArrayStylish($item['value'], $result, $spaceCount + 4);
-                    $result[] = sprintf("%*s}", $spaceCount, ' ');
-
-                    break;
-                }
-
-                $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $item['key'], $item['value']);
-
+                formatStylishActionNothing($result, $item, $spaceCount);
                 break;
             case 'update':
-                if ($item['value'] === null) {
-                    if (!is_array($item['value'])) {
-                        if (!is_array($item['from'])) {
-                            $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['from']);
-                        }
-                        if (is_array($item['from'])) {
-                            $result[] = sprintf("%*s- %s: {", $spaceCount - 2, ' ', $item['key']);
-                            walkArrayStylish($item['from'], $result, $spaceCount + 4);
-                            $result[] = sprintf("%*s}", $spaceCount, ' ');
-                        }
-                        if (!is_array($item['to'])) {
-                            $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['to']);
-                        }
-                        if (is_array($item['to'])) {
-                            $result[] = sprintf("%*s+ %s: {", $spaceCount - 2, ' ', $item['key']);
-                            walkArrayStylish($item['to'], $result, $spaceCount + 4);
-                            $result[] = sprintf("%*s}", $spaceCount, ' ');
-                        }
-
-
-                    }
-                }
-
-                if ($item['value'] !== null) {
-                    $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $item['key']);
-                    formatStylish($item['value'],  $result, $spaceCount + 4);
-                    $result[] = sprintf("%*s}", $spaceCount, ' ');
-                }
-
+                formatStylishActionUpdate($result, $item, $spaceCount);
                 break;
         }
     }
 
     return $result;
+}
+
+function formatStylishActionAdded(array &$result, mixed $item, int $spaceCount): void
+{
+    if (is_array($item['value'])) {
+        formatDeep($result, $item['key'], $item['value'], $spaceCount, '+ ');
+
+        return;
+    }
+
+    $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
+}
+function formatStylishActionRemoved(array &$result, mixed $item, int $spaceCount): void
+{
+    if (is_array($item['value'])) {
+        formatDeep($result, $item['key'], $item['value'], $spaceCount, '- ');
+
+        return;
+    }
+
+    $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['value']);
+}
+function formatStylishActionNothing(array &$result, mixed $item, int $spaceCount): void
+{
+    if (is_array($item['value'])) {
+        formatDeep($result, $item['key'], $item['value'], $spaceCount, '');
+
+        return;
+    }
+
+    $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $item['key'], $item['value']);
+}
+function formatStylishActionUpdate(array &$result, mixed $item, int $spaceCount): void
+{
+    if ($item['value'] === null && !is_array($item['value'])) {
+        if (is_array($item['from'])) {
+            formatDeep($result, $item['key'], $item['from'], $spaceCount, '- ');
+        }
+
+        if (is_array($item['to'])) {
+            formatDeep($result, $item['key'], $item['to'], $spaceCount, '+ ');
+        }
+
+        if (!is_array($item['to']) && !is_array($item['from'])) {
+            $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['from']);
+            $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['to']);
+        }
+
+        return;
+    }
+
+    $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $item['key']);
+    formatStylish($item['value'],  $result, $spaceCount + 4);
+    $result[] = sprintf("%*s}", $spaceCount, ' ');
 }
 
 function formatPlain(array $resultArray, array &$result, string $root = ''): array
