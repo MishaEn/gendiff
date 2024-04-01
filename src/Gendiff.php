@@ -111,28 +111,6 @@ function buildResult(array $resultArray, string $format): string
 
     return $resultString;
 }
-
-function walkArrayStylish(array $resultArray, array &$result, int $spaceCount): void
-{
-    foreach ($resultArray as $key => $item) {
-        $value['key'] = $key;
-        $value['value'] = $item;
-        if (is_array($item)) {
-            formatDeep($result, $value, $spaceCount);
-            continue;
-        }
-
-        $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $key, $item);
-    }
-}
-
-function formatDeep(array &$result, array $item, int $spaceCount, string $sign = ''): void
-{
-    $result[] = sprintf("%*s%s%s: {", $spaceCount, ' ', $sign, $item['key']);
-    walkArrayStylish($item['value'], $result, $spaceCount + 4);
-    $result[] = sprintf("%*s}", $spaceCount, ' ');
-}
-
 function formatStylish(array $resultArray, array &$result, int $spaceCount = 4): array
 {
     foreach ($resultArray as $item) {
@@ -154,7 +132,6 @@ function formatStylish(array $resultArray, array &$result, int $spaceCount = 4):
 
     return $result;
 }
-
 function formatStylishSimpleAction(array &$result, mixed $item, int $spaceCount, string $sign = ''): void
 {
     if (is_array($item['value'])) {
@@ -162,6 +139,8 @@ function formatStylishSimpleAction(array &$result, mixed $item, int $spaceCount,
 
         return;
     }
+
+    $spaceCount = empty($sign) ? $spaceCount + 2 : $spaceCount;
 
     $result[] = sprintf("%*s%s%s: %s", $spaceCount - 2, ' ', $sign, $item['key'], $item['value']);
 }
@@ -189,6 +168,26 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $spaceCount)
 
     $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $item['key']);
     formatStylish($item['value'], $result, $spaceCount + 4);
+    $result[] = sprintf("%*s}", $spaceCount, ' ');
+}
+function walkArrayStylish(array $resultArray, array &$result, int $spaceCount): void
+{
+    foreach ($resultArray as $key => $item) {
+        $value['key'] = $key;
+        $value['value'] = $item;
+        if (is_array($item)) {
+            formatDeep($result, $value, $spaceCount);
+            continue;
+        }
+
+        $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $key, $item);
+    }
+}
+
+function formatDeep(array &$result, array $item, int $spaceCount, string $sign = ''): void
+{
+    $result[] = sprintf("%*s%s%s: {", $spaceCount - 2, ' ', $sign, $item['key']);
+    walkArrayStylish($item['value'], $result, $spaceCount + 4);
     $result[] = sprintf("%*s}", $spaceCount, ' ');
 }
 
