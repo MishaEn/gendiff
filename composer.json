@@ -6,7 +6,8 @@
         },
         "files": [
             "src/Gendiff.php",
-            "src/Parsers.php"
+            "src/Parsers.php",
+            "src/Formatters.php"
         ]
     },
     "authors": [

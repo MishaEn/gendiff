@@ -2,15 +2,9 @@
 
 namespace Hexlet\Code\Gendiff;
 
-use mysql_xdevapi\Result;
-
 use function Hexlet\Code\Parsers\parse;
 use function Hexlet\Code\Formatters\format;
-
-const PARSE_FORMAT = [
-    'stylish' => 'formatStylish',
-    'plain' => 'formatPlain',
-];
+use function Hexlet\Code\Formatters\convertToString;
 
 function generate(string $firstFile, string $secondFile, string $format): string
 {
@@ -19,7 +13,7 @@ function generate(string $firstFile, string $secondFile, string $format): string
 
     $resultArray = findingDifference($firstArray, $secondArray);
 
-    return buildResult($resultArray, $format);
+    return format($resultArray, $format);
 }
 
 function findingDifference(array $firstArray, array $secondArray): array
@@ -87,159 +81,4 @@ function commitAddition(mixed $value, $key): array
 function commitDeletion(mixed $value, string $key): array
 {
     return ['key' => $key, 'action' => 'removed', 'from' => null, 'to' => null, 'value' => $value];
-}
-
-function buildResult(array $resultArray, string $format): string
-{
-    $result = [];
-    $resultString = '';
-
-    switch ($format) {
-        case 'stylish':
-            $result = formatStylish($resultArray, $result);
-            foreach ($result as $item) {
-                $resultString .= "\n" . $item;
-            }
-            return sprintf("{%s\n}", $resultString);
-        case 'plain':
-            $result = formatPlain($resultArray, $result);
-            foreach ($result as $item) {
-                $resultString .= "\n" . $item;
-            }
-            return $resultString;
-    }
-
-    return $resultString;
-}
-function formatStylish(array $resultArray, array &$result, int $spaceCount = 4): array
-{
-    foreach ($resultArray as $item) {
-        switch ($item['action']) {
-            case 'added':
-                formatStylishSimpleAction($result, $item, $spaceCount, '+ ');
-                break;
-            case 'removed':
-                formatStylishSimpleAction($result, $item, $spaceCount, '- ');
-                break;
-            case 'nothing':
-                formatStylishSimpleAction($result, $item, $spaceCount);
-                break;
-            case 'update':
-                formatStylishActionUpdate($result, $item, $spaceCount);
-                break;
-        }
-    }
-
-    return $result;
-}
-function formatStylishSimpleAction(array &$result, mixed $item, int $spaceCount, string $sign = ''): void
-{
-    if (is_array($item['value'])) {
-        formatDeep($result, $item, $spaceCount, $sign);
-
-        return;
-    }
-
-    $spaceCount = empty($sign) ? $spaceCount + 2 : $spaceCount;
-
-    $result[] = sprintf("%*s%s%s: %s", $spaceCount - 2, ' ', $sign, $item['key'], $item['value']);
-}
-
-function formatStylishActionUpdate(array &$result, mixed $item, int $spaceCount): void
-{
-    if ($item['value'] === null && !is_array($item['value'])) {
-        if (is_array($item['from'])) {
-            $item['value'] = $item['from'];
-            formatDeep($result, $item, $spaceCount, '- ');
-        }
-
-        if (is_array($item['to'])) {
-            $item['value'] = $item['to'];
-            formatDeep($result, $item, $spaceCount, '+ ');
-        }
-
-        if (!is_array($item['to']) && !is_array($item['from'])) {
-            $result[] = sprintf("%*s- %s: %s", $spaceCount - 2, ' ', $item['key'], $item['from']);
-            $result[] = sprintf("%*s+ %s: %s", $spaceCount - 2, ' ', $item['key'], $item['to']);
-        }
-
-        return;
-    }
-
-    $result[] = sprintf("%*s%s: {", $spaceCount, ' ', $item['key']);
-    formatStylish($item['value'], $result, $spaceCount + 4);
-    $result[] = sprintf("%*s}", $spaceCount, ' ');
-}
-function walkArrayStylish(array $resultArray, array &$result, int $spaceCount): void
-{
-    foreach ($resultArray as $key => $item) {
-        $value['key'] = $key;
-        $value['value'] = $item;
-        if (is_array($item)) {
-            formatDeep($result, $value, $spaceCount);
-            continue;
-        }
-
-        $result[] = sprintf("%*s%s: %s", $spaceCount, ' ', $key, $item);
-    }
-}
-
-function formatDeep(array &$result, array $item, int $spaceCount, string $sign = ''): void
-{
-    $result[] = sprintf("%*s%s%s: {", $spaceCount - 2, ' ', $sign, $item['key']);
-    walkArrayStylish($item['value'], $result, $spaceCount + 4);
-    $result[] = sprintf("%*s}", $spaceCount, ' ');
-}
-
-function formatPlain(array $resultArray, array &$result, string $root = ''): array
-{
-    foreach ($resultArray as $item) {
-        $prefix = empty($root) ? $item['key'] : $root . '.' . $item['key'];
-
-        switch ($item['action']) {
-            case 'added':
-                $value = !is_array($item['value']) ? $item['value'] : '[complex value]';
-                $result[] = sprintf("Property '%s' was %s with value: %s", $prefix, $item['action'], $value);
-
-                break;
-            case 'removed':
-                $result[] = sprintf("Property '%s' was %s", $prefix, $item['action']);
-
-                break;
-            case 'update':
-                if ($item['value'] === null) {
-                    $to = !is_array($item['to']) ? $item['to'] : '[complex value]';
-                    $from = !is_array($item['from']) ? $item['from'] : '[complex value]';
-
-                    $result[] = sprintf("Property '%s' was %s. From %s to %s", $prefix, $item['action'], $to, $from);
-
-                    break;
-                }
-
-                $root = $item['key'];
-                formatPlain($item['value'], $result, $root);
-
-                break;
-        }
-    }
-
-    return $result;
-}
-
-
-function convertToString(mixed $value): string|array
-{
-    if (is_bool($value)) {
-        $value = $value ? 'true' : 'false';
-    }
-
-    if (is_null($value)) {
-        $value = 'null';
-    }
-
-    if (is_array($value)) {
-        return $value;
-    }
-
-    return (string) $value;
 }
