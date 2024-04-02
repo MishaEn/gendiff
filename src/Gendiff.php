@@ -13,7 +13,7 @@ function generate(string $firstFile, string $secondFile, string $format): string
 
     $resultArray = findingDifference($firstArray, $secondArray);
 
-    return format($resultArray, $format);
+    return format($resultArray, $format, $firstArray, $secondArray);
 }
 
 function findingDifference(array $firstArray, array $secondArray): array

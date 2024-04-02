@@ -4,21 +4,18 @@ namespace Hexlet\Code\Formatters;
 
 const FULL_TAB = '    ';
 const HALF_TAB = '  ';
-function format(array $resultArray, string $format)
+function format(array $resultArray, string $format, array $firstArray = [], array $secondArray = [])
 {
     $resultString = '';
     $result = [];
-    switch ($format) {
-        case 'stylish':
-            $result = formatStylish($resultArray, $result);
-            $resultString = implode("\n", $result);
-            return sprintf("{\n%s\n}", $resultString);
-        case 'plain':
-            $result = formatPlain($resultArray, $result);
-            return implode("\n", $result);
-    }
 
-    return $resultString;
+    return match ($format) {
+        'stylish' => sprintf("{\n%s\n}", implode("\n", formatStylish($resultArray, $result))),
+        'plain' => implode("\n", formatPlain($resultArray, $result)),
+        'json' => json_encode(formatJson($firstArray, $secondArray, $result)),
+        default => $resultString,
+    };
+
 }
 
 function formatStylish(array $resultArray, array &$result, int $depth = 1): array
@@ -151,7 +148,10 @@ function formatPlain(array $resultArray, array &$result, int $dept = 0, string $
     return $result;
 }
 
-
+function formatJson($firstArray, $secondArray, $result): array
+{
+    return array_merge($firstArray, $secondArray);
+}
 function convertToString(mixed $value): string|array
 {
     if (is_bool($value)) {
