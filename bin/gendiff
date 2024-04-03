@@ -3,7 +3,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use function Hexlet\Code\Gendiff\genDiff;
+use function Differ\Differ\genDiff;
 
 $doc = <<<DOCOPT
 Generate diff

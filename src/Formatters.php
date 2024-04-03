@@ -1,6 +1,6 @@
 <?php
 
-namespace Hexlet\Code\Formatters;
+namespace Differ\Formatters;
 
 const FULL_TAB = '    ';
 const HALF_TAB = '  ';

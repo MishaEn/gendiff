@@ -1,10 +1,10 @@
 <?php
 
-namespace Hexlet\Code\Gendiff;
+namespace Differ\Differ;
 
-use function Hexlet\Code\Parsers\parse;
-use function Hexlet\Code\Formatters\format;
-use function Hexlet\Code\Formatters\convertToString;
+use function Differ\Parsers\parse;
+use function Differ\Formatters\format;
+use function Differ\Formatters\convertToString;
 
 function genDiff(string $firstFile, string $secondFile, string $format = 'stylish'): string
 {
