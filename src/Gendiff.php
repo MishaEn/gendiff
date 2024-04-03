@@ -6,7 +6,7 @@ use function Hexlet\Code\Parsers\parse;
 use function Hexlet\Code\Formatters\format;
 use function Hexlet\Code\Formatters\convertToString;
 
-function generate(string $firstFile, string $secondFile, string $format): string
+function generate(string $firstFile, string $secondFile, string $format = 'stylish'): string
 {
     $firstArray = parse($firstFile);
     $secondArray = parse($secondFile);
@@ -71,7 +71,7 @@ function commitNothing(mixed $value, string $key): array
 }
 function commitUpdate(mixed $from, mixed $to, mixed $value, string $key): array
 {
-    return ['key' => $key, 'action' => 'update', 'from' => $from, 'to' => $to, 'value' => $value];
+    return ['key' => $key, 'action' => 'updated', 'from' => $from, 'to' => $to, 'value' => $value];
 }
 function commitAddition(mixed $value, $key): array
 {

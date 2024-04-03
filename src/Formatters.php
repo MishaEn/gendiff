@@ -10,8 +10,8 @@ function format(array $resultArray, string $format, array $firstArray = [], arra
     $result = [];
 
     return match ($format) {
-        'stylish' => sprintf("{\n%s\n}", implode("\n", formatStylish($resultArray, $result))),
-        'plain' => implode("\n", formatPlain($resultArray, $result)),
+        'stylish' => sprintf("{\r\n%s\r\n}", implode("\r\n", formatStylish($resultArray, $result))),
+        'plain' => implode("\r\n", formatPlain($resultArray, $result)),
         'json' => json_encode(formatJson($firstArray, $secondArray, $result)),
         default => $resultString,
     };
@@ -31,7 +31,7 @@ function formatStylish(array $resultArray, array &$result, int $depth = 1): arra
             case 'nothing':
                 formatStylishSimpleAction($result, $item, $depth);
                 break;
-            case 'update':
+            case 'updated':
                 formatStylishActionUpdate($result, $item, $depth);
                 break;
         }
@@ -70,11 +70,17 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $depth): voi
             formatDeep($result, $item, $depth, '+ ');
         }
 
-        if (!is_array($item['to']) && !is_array($item['from'])) {
+        if (!is_array($item['from'])) {
             $spaces = createTabs($depth + ($depth - 1), true);
-            $result[] = sprintf("%s- %s: %s", $spaces, $item['key'], $item['from']);
-            $result[] = sprintf("%s+ %s: %s", $spaces, $item['key'], $item['to']);
+            $result[] = sprintf("%s- %s:%s", $spaces, $item['key'], !empty($item['from']) ? ' ' . $item['from'] : $item['from']);
         }
+
+        if (!is_array($item['to'])) {
+            $spaces = createTabs($depth + ($depth - 1), true);
+            $result[] = sprintf("%s+ %s:%s", $spaces, $item['key'], !empty($item['to']) ? ' ' . $item['to'] : $item['to']);
+        }
+
+
 
         return;
     }
@@ -88,8 +94,13 @@ function formatDeep(array &$result, array $item, int $depth, string $sign = ''):
 {
     $spaces = createTabs($depth, !empty($sign));
     if (!empty($sign)) {
-        $spaces = createTabs($depth + 1, !empty($sign));
+        $spaces = createTabs($depth + 1, true);
     }
+
+    if ($depth === 1) {
+        $spaces = '  ';
+    }
+
     $result[] = sprintf("%s%s%s: {", $spaces, $sign, $item['key']);
     walkArrayStylish($item['value'], $result, $depth);
     $spaces = createTabs($depth);
@@ -130,7 +141,7 @@ function formatPlain(array $resultArray, array &$result, int $dept = 0, string $
                 }
                 $result[] = sprintf("Property '%s' was %s", $prefix, $item['action']);
                 break;
-            case 'update':
+            case 'updated':
                 if ($item['value'] === null) {
                     if ($prefixArray[$dept] !== $item['key']) {
                         $prefix = str_replace('.' . $prefixArray[$dept], "", $prefix);
@@ -174,7 +185,6 @@ function createTabs(int $depth, bool $isSign = false): string
 
 function wrapQuotes(string $item): string
 {
-    dump($item);
     if ($item !== 'false' && $item !== 'true' && $item !== 'null') {
         return "'" . $item . "'";
     }
