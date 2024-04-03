@@ -72,12 +72,12 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $depth): voi
 
         if (!is_array($item['from'])) {
             $spaces = createTabs($depth + ($depth - 1), true);
-            $result[] = sprintf("%s- %s:%s", $spaces, $item['key'], !empty($item['from']) ? ' ' . $item['from'] : $item['from']);
+            $result[] = sprintf("%s- %s:%s", $spaces, $item['key'], $item['from'] !== '' ? ' ' . $item['from'] : $item['from']);
         }
 
         if (!is_array($item['to'])) {
             $spaces = createTabs($depth + ($depth - 1), true);
-            $result[] = sprintf("%s+ %s:%s", $spaces, $item['key'], !empty($item['to']) ? ' ' . $item['to'] : $item['to']);
+            $result[] = sprintf("%s+ %s:%s", $spaces, $item['key'], $item['to'] !== '' ? ' ' . $item['to'] : $item['to']);
         }
 
 
