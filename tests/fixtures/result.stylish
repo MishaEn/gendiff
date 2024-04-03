@@ -11,7 +11,7 @@
         }
         setting6: {
             doge: {
-              - wow:
+              - wow: 1
               + wow: so much
             }
             key: value
