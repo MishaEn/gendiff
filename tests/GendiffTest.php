@@ -1,7 +1,7 @@
 <?php
 
 use PHPUnit\Framework\TestCase;
-use function Hexlet\Code\Gendiff\generate;
+use function Hexlet\Code\Gendiff\genDiff;
 
 class GendiffTest extends TestCase
 {
@@ -19,7 +19,7 @@ class GendiffTest extends TestCase
      */
     public function testGendiff(string $format, string $expected, string $file1, string $file2): void
     {
-        $actual = generate(
+        $actual = genDiff(
             $this->createFilePath($file1),
             $this->createFilePath($file2),
             $format

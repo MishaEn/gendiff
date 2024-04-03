@@ -3,7 +3,7 @@
 
 require_once __DIR__ . '/../vendor/autoload.php';
 
-use function Hexlet\Code\Gendiff\generate;
+use function Hexlet\Code\Gendiff\genDiff;
 
 $doc = <<<DOCOPT
 Generate diff
@@ -20,6 +20,6 @@ DOCOPT;
 
 $args = Docopt::handle($doc, array('version'=>'gendiff 1.0'));
 
-$a = generate($args->args['<firstFile>'], $args->args['<secondFile>'], $args->args['--format']);
+$a = genDiff($args->args['<firstFile>'], $args->args['<secondFile>'], $args->args['--format']);
 
 print_r($a);

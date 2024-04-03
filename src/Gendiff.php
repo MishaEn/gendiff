@@ -6,7 +6,7 @@ use function Hexlet\Code\Parsers\parse;
 use function Hexlet\Code\Formatters\format;
 use function Hexlet\Code\Formatters\convertToString;
 
-function generate(string $firstFile, string $secondFile, string $format = 'stylish'): string
+function genDiff(string $firstFile, string $secondFile, string $format = 'stylish'): string
 {
     $firstArray = parse($firstFile);
     $secondArray = parse($secondFile);
