@@ -1,7 +1,5 @@
 <?php
 
-namespace Hexlet\Code\Tests\GendiffTest;
-
 use PHPUnit\Framework\TestCase;
 use function Hexlet\Code\Gendiff\generate;
 
