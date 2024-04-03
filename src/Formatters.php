@@ -10,8 +10,8 @@ function format(array $resultArray, string $format, array $firstArray = [], arra
     $result = [];
 
     return match ($format) {
-        'stylish' => sprintf("{\r\n%s\r\n}", implode("\r\n", formatStylish($resultArray, $result))),
-        'plain' => implode("\r\n", formatPlain($resultArray, $result)),
+        'stylish' => sprintf("{\n%s\n}", implode("\n", formatStylish($resultArray, $result))),
+        'plain' => implode("\n", formatPlain($resultArray, $result)),
         'json' => json_encode(formatJson($firstArray, $secondArray, $result)),
         default => $resultString,
     };
