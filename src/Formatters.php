@@ -197,7 +197,7 @@ function createTabs(int $depth, bool $isSign = false): string
 
 function wrapQuotes(string $item): string
 {
-    if ($item !== 'false' && $item !== 'true' && $item !== 'null') {
+    if ($item !== 'false' && $item !== 'true' && $item !== 'null' && !is_numeric($item)) {
         return "'" . $item . "'";
     }
     return $item;
