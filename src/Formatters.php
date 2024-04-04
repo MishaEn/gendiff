@@ -107,8 +107,8 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $depth): voi
 
 /** @phpstan-ignore-next-line */
 function formatDeep(array &$result, array $item, int $depth, string $sign = ''): void
-/** @phpstan-ignore-next-line */
 {
+/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     $spaces = createTabs($depth, !empty($sign));
     /** @phpstan-ignore-next-line */
@@ -141,8 +141,8 @@ function formatDeep(array &$result, array $item, int $depth, string $sign = ''):
 
 /** @phpstan-ignore-next-line */
 function walkArrayStylish(array $resultArray, array &$result, int $depth): void
-/** @phpstan-ignore-next-line */
 {
+/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     ++$depth;
     /** @phpstan-ignore-next-line */
@@ -171,12 +171,11 @@ function walkArrayStylish(array $resultArray, array &$result, int $depth): void
 
 /** @phpstan-ignore-next-line */
 function formatPlain(array $resultArray, array &$result, int $dept = 0, string $root = ''): array
-/** @phpstan-ignore-next-line */
 {
+/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     foreach ($resultArray as $item) {
-        /** @phpstan-ignore-next-line */
-        $prefix = $dept === 0 ? $item['key'] : $root . '.' . $item['key'];
+        $prefix = $dept === 0 ? $item['key'] : $root . '.' . $item['key']; /** @phpstan-ignore-line */
         /** @phpstan-ignore-next-line */
         $prefixArray = explode('.', $prefix);
         /** @phpstan-ignore-next-line */
@@ -247,16 +246,16 @@ function formatPlain(array $resultArray, array &$result, int $dept = 0, string $
 
 /** @phpstan-ignore-next-line */
 function formatJson($firstArray, $secondArray, $result): array
-/** @phpstan-ignore-next-line */
 {
+/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     return array_merge($firstArray, $secondArray);
     /** @phpstan-ignore-next-line */
 }
 /** @phpstan-ignore-next-line */
 function convertToString(mixed $value): string|array
-/** @phpstan-ignore-next-line */
 {
+/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     if (is_bool($value)) {
         /** @phpstan-ignore-next-line */
@@ -283,8 +282,8 @@ function convertToString(mixed $value): string|array
 }
 /** @phpstan-ignore-next-line */
 function convertArray(array $array): array
-/** @phpstan-ignore-next-line */
 {
+/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     foreach ($array as $key => $item) {
         /** @phpstan-ignore-next-line */
@@ -309,18 +308,16 @@ function convertArray(array $array): array
 }
 /** @phpstan-ignore-next-line */
 function createTabs(int $depth, bool $isSign = false): string
-/** @phpstan-ignore-next-line */
 {
-    /** @phpstan-ignore-next-line */
-    return str_repeat($isSign ? HALF_TAB : FULL_TAB, $depth);
-    /** @phpstan-ignore-next-line */
+/** @phpstan-ignore-line */
+    return str_repeat($isSign ? HALF_TAB : FULL_TAB, $depth);/** @phpstan-ignore-line */
 }
 /** @phpstan-ignore-next-line */
 
 /** @phpstan-ignore-next-line */
 function wrapQuotes(string $item): string
-/** @phpstan-ignore-next-line */
 {
+/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     if ($item !== 'false' && $item !== 'true' && $item !== 'null' && !is_numeric($item)) {
         /** @phpstan-ignore-next-line */
