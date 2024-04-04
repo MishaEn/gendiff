@@ -177,7 +177,19 @@ function convertToString(mixed $value): string|array
 
     return (string) $value;
 }
+function convertArray(array $array): array
+{
+    foreach ($array as $key => $item) {
+        if (is_array($item)) {
+            $array[$key] = convertArray($item);
 
+            continue;
+        }
+        $array[$key] = convertToString($item);
+    }
+
+    return $array;
+}
 function createTabs(int $depth, bool $isSign = false): string
 {
     return str_repeat($isSign ? HALF_TAB : FULL_TAB, $depth);
