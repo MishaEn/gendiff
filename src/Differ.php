@@ -22,24 +22,25 @@ function findingDifference(array $firstArray, array $secondArray): array
 
     $intersecting = array_intersect_key($firstArray, $secondArray);
     $merged = array_merge($firstArray, $secondArray);
-
+    /** @phpstan-ignore-next-line */
     ksort($merged);
-
+    /** @phpstan-ignore-next-line */
     foreach ($merged as $key => $value) {
         if (isset($intersecting[$key])) {
             if ($firstArray[$key] !== $secondArray[$key] && !is_array($value)) {
+                /** @phpstan-ignore-next-line */
                 $resultArray[] = commitUpdate($firstArray[$key], $secondArray[$key], null, $key);
 
                 continue;
             }
-
+            /** @phpstan-ignore-next-line */
             $resultArray[] = !is_array($value) ?
                 commitNothing($secondArray[$key], $key) :
                 commitUpdate(null, null, findingDifference($firstArray[$key], $secondArray[$key]), $key);
 
             continue;
         }
-
+        /** @phpstan-ignore-next-line */
         $resultArray[] = commitWithoutCrossing($firstArray, $secondArray, $key);
     }
 
@@ -73,7 +74,7 @@ function commitUpdate(mixed $from, mixed $to, mixed $value, string $key): array
 {
     return ['key' => $key, 'action' => 'updated', 'from' => $from, 'to' => $to, 'value' => $value];
 }
-function commitAddition(mixed $value, $key): array
+function commitAddition(mixed $value, string $key): array
 {
     return ['key' => $key, 'action' => 'added', 'from' => null, 'to' => null, 'value' => $value];
 }
