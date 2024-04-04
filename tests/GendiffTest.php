@@ -1,11 +1,14 @@
 <?php
 
+namespace Hexlet\Code\Tests;
+
 use PHPUnit\Framework\TestCase;
+
 use function Differ\Differ\genDiff;
 
 class GendiffTest extends TestCase
 {
-    protected function setUp():void
+    protected function setUp(): void
     {
         $this->files = [
             'json1' => 'tests/fixtures/file1.json',

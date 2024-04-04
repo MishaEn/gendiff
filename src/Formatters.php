@@ -15,7 +15,6 @@ function format(array $resultArray, string $format, array $firstArray = [], arra
         'json' => json_encode(formatJson($firstArray, $secondArray, $result)),
         default => $resultString,
     };
-
 }
 
 function formatStylish(array $resultArray, array &$result, int $depth = 1): array
@@ -87,7 +86,7 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $depth): voi
 
     $result[] = sprintf("%s%s: {", $spaces, $item['key']);
     formatStylish($item['value'], $result, ++$depth);
-    $result[] = sprintf( "%s}", $spaces);
+    $result[] = sprintf("%s}", $spaces);
 }
 
 function formatDeep(array &$result, array $item, int $depth, string $sign = ''): void
@@ -104,7 +103,7 @@ function formatDeep(array &$result, array $item, int $depth, string $sign = ''):
     $result[] = sprintf("%s%s%s: {", $spaces, $sign, $item['key']);
     walkArrayStylish($item['value'], $result, $depth);
     $spaces = createTabs($depth);
-    $result[] = sprintf( "%s}", $spaces);
+    $result[] = sprintf("%s}", $spaces);
 }
 
 function walkArrayStylish(array $resultArray, array &$result, int $depth): void
@@ -133,7 +132,8 @@ function formatPlain(array $resultArray, array &$result, int $dept = 0, string $
                     $prefix = str_replace('.' . $prefixArray[$dept], "", $prefix);
                 }
                 $value = !is_array($item['value']) ? wrapQuotes($item['value']) : '[complex value]';
-                $result[] = sprintf("Property '%s' was %s with value: %s", $prefix, $item['action'], $value);;
+                $result[] = sprintf("Property '%s' was %s with value: %s", $prefix, $item['action'], $value);
+                ;
                 break;
             case 'removed':
                 if ($prefixArray[$dept] !== $item['key']) {

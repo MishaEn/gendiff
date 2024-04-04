@@ -10,6 +10,11 @@
             "src/Formatters.php"
         ]
     },
+    "autoload-dev": {
+        "psr-4": {
+            "Hexlet\\Code\\Tests\\": "tests"
+        }
+    },
     "authors": [
         {
             "name": "Bychkov Mikhail",

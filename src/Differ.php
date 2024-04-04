@@ -28,7 +28,7 @@ function findingDifference(array $firstArray, array $secondArray): array
     foreach ($merged as $key => $value) {
         if (isset($intersecting[$key])) {
             if ($firstArray[$key] !== $secondArray[$key] && !is_array($value)) {
-                $resultArray[] = commitUpdate($firstArray[$key],  $secondArray[$key], null, $key);
+                $resultArray[] = commitUpdate($firstArray[$key], $secondArray[$key], null, $key);
 
                 continue;
             }
