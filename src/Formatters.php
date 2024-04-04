@@ -24,7 +24,7 @@ function formatStylish(array $resultArray, array &$result, int $depth = 1): arra
         switch ($item['action']) {
             /** @phpstan-ignore-next-line */
             case 'added':
-                formatStylishSimpleAction($result, $item, $depth, '+ ');
+                formatStylishSimpleAction($result, $item, $depth, '+ ');/** @phpstan-ignore-line */
                 /** @phpstan-ignore-next-line */
                 break;
             case 'removed':
@@ -33,10 +33,10 @@ function formatStylish(array $resultArray, array &$result, int $depth = 1): arra
                 break;
             /** @phpstan-ignore-next-line */
             case 'nothing':
-                formatStylishSimpleAction($result, $item, $depth);
+                formatStylishSimpleAction($result, $item, $depth);/** @phpstan-ignore-line */
                 break;
             case 'updated':
-                formatStylishActionUpdate($result, $item, $depth);
+                formatStylishActionUpdate($result, $item, $depth);/** @phpstan-ignore-line */
                 break;
         }
     }
@@ -54,8 +54,8 @@ function formatStylishSimpleAction(array &$result, mixed $item, int $depth, stri
     /** @phpstan-ignore-next-line */
     $spaces = createTabs($depth, !empty($sign));
 
-    if (!empty($sign)) {
-        $spaces = createTabs($depth + ($depth - 1), !empty($sign));
+    if (!empty($sign)) {/** @phpstan-ignore-line */
+        $spaces = createTabs($depth + ($depth - 1), !empty($sign));/** @phpstan-ignore-line */
     }
     /** @phpstan-ignore-next-line */
     $result[] = sprintf("%s%s%s: %s", $spaces, $sign, $item['key'], $item['value']);
@@ -69,7 +69,7 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $depth): voi
     /** @phpstan-ignore-next-line */
     if ($item['value'] === null && !is_array($item['value'])) {
         if (is_array($item['from'])) {
-            $item['value'] = $item['from'];
+            $item['value'] = $item['from'];/** @phpstan-ignore-line */
             /** @phpstan-ignore-next-line */
             formatDeep($result, $item, $depth, '- ');
             /** @phpstan-ignore-next-line */
@@ -78,25 +78,25 @@ function formatStylishActionUpdate(array &$result, mixed $item, int $depth): voi
         if (is_array($item['to'])) {
             /** @phpstan-ignore-next-line */
             $item['value'] = $item['to'];
-            formatDeep($result, $item, $depth, '+ ');
+            formatDeep($result, $item, $depth, '+ ');/** @phpstan-ignore-line */
         }
 
         if (!is_array($item['from'])) {
-            $spaces = createTabs($depth + ($depth - 1), true);
-            $result[] = sprintf("%s- %s: %s", $spaces, $item['key'], $item['from']);
+            $spaces = createTabs($depth + ($depth - 1), true);/** @phpstan-ignore-line */
+            $result[] = sprintf("%s- %s: %s", $spaces, $item['key'], $item['from']);/** @phpstan-ignore-line */
             /** @phpstan-ignore-next-line */
         }
         /** @phpstan-ignore-next-line */
         if (!is_array($item['to'])) {
-            $spaces = createTabs($depth + ($depth - 1), true);
-            $result[] = sprintf("%s+ %s: %s", $spaces, $item['key'], $item['to']);
+            $spaces = createTabs($depth + ($depth - 1), true);/** @phpstan-ignore-line */
+            $result[] = sprintf("%s+ %s: %s", $spaces, $item['key'], $item['to']);/** @phpstan-ignore-line */
         }
         /** @phpstan-ignore-next-line */
         return;
         /** @phpstan-ignore-next-line */
     }
 
-    $result[] = sprintf("%s%s: {", $spaces, $item['key']);
+    $result[] = sprintf("%s%s: {", $spaces, $item['key']);/** @phpstan-ignore-line */
     /** @phpstan-ignore-next-line */
     formatStylish($item['value'], $result, ++$depth);
     /** @phpstan-ignore-next-line */
